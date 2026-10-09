@@ -1,15 +1,15 @@
 # 🤖 CF ChatUI
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/stephenlzc/cf-chatui)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/ozuijoy/Chat-UI)
 [![Workers AI](https://img.shields.io/badge/Powered%20by-Workers%20AI-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://developers.cloudflare.com/workers-ai/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
 > 🎯 **零門檻使用大模型** - 無需部署服務器，無需申請 API Key，直接調用 [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/) 的免費/付費模型
 
-CF ChatUI 是一個基於 **Cloudflare Workers AI** 的多功能 AI 對話 Web 界面，讓您在幾分鐘內即可搭建自己的 AI 聊天平臺。支持文本對話、圖像生成和文本嵌入，所有計算都在 Cloudflare 邊緣節點完成。
+CF ChatUI 是一個基於 **Cloudflare Workers AI** 的多功能 AI 對話 Web 界面，讓您在幾分鐘內即可搭建自己的 AI 聊天平臺。支持文本對話、圖像生成、文本嵌入與聊天記錄 KV 持久化（記憶模式），所有計算都在 Cloudflare 邊緣節點完成。界面為正體中文（zh-TW）。
 
 <!-- 截圖佔位符 - 上傳 screenshot.png 後解除註釋
-![CF ChatUI Screenshot](https://raw.githubusercontent.com/stephenlzc/cf-chatui/main/screenshot.png)
+![CF ChatUI Screenshot](https://raw.githubusercontent.com/ozuijoy/Chat-UI/main/screenshot.png)
 -->
 
 ## ✨ 功能特性
@@ -99,8 +99,8 @@ CF ChatUI 是一個基於 **Cloudflare Workers AI** 的多功能 AI 對話 Web �
 
 ```bash
 # 1. 克隆倉庫
-git clone https://github.com/stephenlzc/cf-chatui.git
-cd cf-chatui
+git clone https://github.com/ozuijoy/Chat-UI.git
+cd Chat-UI
 
 # 2. 安裝依賴
 npm install
@@ -161,7 +161,8 @@ wrangler deploy
 6. 設置環境變量:
    - 變量名: `CF_ACCOUNT_ID`, `CF_API_TOKEN`, `AUTH_PASSWORD`, `SESSION_SECRET`
    - 加密: 建議啓用加密 (Secret)
-7. 部署
+7. 綁定 KV (記憶模式): **Settings → Bindings → Add KV namespace binding**，Variable name 填 `CHAT_MEMORY`（未綁定則記憶模式自動停用）
+8. 部署
 
 ### 部署後配置
 
@@ -177,6 +178,7 @@ wrangler deploy
 - **AI 服務**: [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)
 - **前端**: 原生 JavaScript + [Tailwind CSS](https://tailwindcss.com/)
 - **認證**: JWT (JSON Web Tokens)
+- **持久化**: [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)（記憶模式，於 Dashboard 綁定）
 - **圖標**: [Heroicons](https://heroicons.com/)
 
 ## 📝 支持的 AI 模型
@@ -210,15 +212,26 @@ wrangler tail
 ```
 cf-chatui/
 ├── src/
-│   └── index.ts          # 主入口 (Worker + 前端)
-├── wrangler.toml         # Cloudflare Workers 配置
-├── .wrangler.toml.example # 配置文件模板
-├── .dev.vars.example     # 本地環境變量模板
+│   ├── index.ts           # 主入口 (Worker + 前端 + KV 記憶 API)
+│   ├── index.html         # 前端靜態頁面（由 index.ts 模板生成）
+│   └── index.html.escaped # 模板字串轉義版
+├── wrangler.toml          # Cloudflare Workers 配置（KV 僅在面板綁定，無明文 id）
+├── .wrangler.toml.example # 配置檔案模板
+├── .dev.vars.example      # 本地環境變數模板
+├── BUGS.md                # 已知問題清單
 ├── .gitignore
 ├── package.json
 ├── tsconfig.json
 └── README.md
 ```
+
+## 🧠 記憶模式使用說明
+
+1. 部署後在 **Cloudflare Dashboard → Workers & Pages → chatui → Settings → Bindings** 新增 KV namespace 綁定，Variable name 填 `CHAT_MEMORY`
+2. 進入聊天界面後，輸入框下方有 **「記憶模式」** 開關（預設開啟）
+3. **載入歷史**：從 KV 拉回最近的對話記錄並還原到聊天窗口
+4. **清除記錄**：刪除 KV 中保存的該會話全部聊天記錄（操作前有二次確認）
+5. 未綁定 KV 時應用自動降級，記憶開關預設關閉，不影響正常聊天
 
 ## 💰 Workers AI 定價
 
@@ -226,7 +239,7 @@ Cloudflare Workers AI 提供**免費額度**，對於個人使用通常足夠：
 
 | 模型類型 | 免費額度 | 超出後價格 |
 |---------|---------|-----------|
-| 文本生成 (GLM/GPT) | 每天 10,000 次請求 | $0.001-0.003 / 1K tokens |
+| 文本生成 (Llama/Mistral) | 每天 10,000 次請求 | $0.001-0.003 / 1K tokens |
 | 圖像生成 (FLUX) | 每天 100 張 | $0.02-0.05 / 張 |
 | 文本嵌入 | 每天 100,000 次 | $0.0001 / 1K tokens |
 
@@ -238,23 +251,28 @@ Cloudflare Workers AI 提供**免費額度**，對於個人使用通常足夠：
 2. **使用強密鑰** - `SESSION_SECRET` 建議使用 `openssl rand -base64 32` 生成
 3. **保護 API Token** - 使用 `wrangler secret put` 加密存儲
 4. **定期輪換密鑰** - 建議定期更新 `SESSION_SECRET` 和 `CF_API_TOKEN`
+5. **KV 綁定不出現明文 id** - `wrangler.toml` 中不含 KV namespace id，僅在 Cloudflare Dashboard 綁定 `CHAT_MEMORY`
+6. **前端 Token 自動過期檢測** - JWT 過期後自動清除並跳回登入頁，請求帶 30 秒超時
 
 ## 🐛 已知問題
 
 **⚠️ 詳細的 Bug 清單請看 [BUGS.md](./BUGS.md)**
 
 主要已知問題：
-- 🔴 **GPT-OSS-120B** 模型響應不穩定
 - 🟠 **中文編碼** 在某些瀏覽器下有問題
-- 🟡 **聊天記錄** 頁面刷新後丟失
-- 🟡 **Token 過期** 前端無自動檢測
+- 🟡 **SSE 流式中斷** 弱網環境下可能意外中斷
 
-我們持續跟蹤和修復問題，歡迎提交 [Issue](https://github.com/stephenlzc/cf-chatui/issues) 報告新 Bug！
+已修復：
+- ✅ **Token 過期** 前端自動檢測並跳登入頁
+- ✅ **聊天記錄** 可透過 KV 記憶模式持久化（載入/清除歷史）
+- ✅ **GPT-OSS-120B 無響應** 已將該模型由支援清單移除，改用 Llama 系列
+
+我們持續跟蹤和修復問題，歡迎提交 [Issue](https://github.com/ozuijoy/Chat-UI/issues) 報告新 Bug！
 
 ## 🗺️ 路線圖
 
 ### 近期計劃 (v1.x)
-- [ ] 📝 **聊天記錄持久化** - 支持查看歷史對話
+- [x] 📝 **聊天記錄持久化** - KV 記憶模式已上線，可載入/清除歷史對話
 - [ ] 💾 **本地存儲** - 瀏覽器本地緩存對話
 - [ ] 🎨 **主題系統** - 可自定義界面顏色和風格
 - [ ] ⚙️ **模型參數配置** - 調整 temperature、max_tokens 等

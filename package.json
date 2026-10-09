@@ -15,21 +15,23 @@
     "ai",
     "chat",
     "chatgpt",
-    "glm",
+    "llama",
+    "mistral",
     "flux",
     "embedding",
-    "workers-ai"
+    "workers-ai",
+    "kv-memory"
   ],
   "author": "CF ChatUI Contributors",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stephenlzc/cf-chatui.git"
+    "url": "git+https://github.com/ozuijoy/Chat-UI.git"
   },
   "bugs": {
-    "url": "https://github.com/stephenlzc/cf-chatui/issues"
+    "url": "https://github.com/ozuijoy/Chat-UI/issues"
   },
-  "homepage": "https://github.com/stephenlzc/cf-chatui#readme",
+  "homepage": "https://github.com/ozuijoy/Chat-UI#readme",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240101.0",
     "typescript": "^5.9.3"
