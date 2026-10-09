@@ -652,7 +652,7 @@ function getFrontendHTML(): string {
                     <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">選擇模型</h2>
                     
                     <div class="space-y-3">
-                        <!-- GLM-4.7-flash -->
+                        <!-- Llama 3.1 8B Instruct (預設) -->
                         <div class="model-card p-4 rounded-xl cursor-pointer" data-model="@cf/meta/llama-3.1-8b-instruct-fp8-fast" data-type="chat">
                             <div class="flex items-start gap-3">
                                 <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center flex-shrink-0">
@@ -1324,8 +1324,7 @@ function getFrontendHTML(): string {
                             
                             try {
                                 const data = JSON.parse(dataStr);
-                                // 處理GLM模型的輸出
-                                // GLM模型返回的是reasoning/reasoning_content字段
+                                // 相容標準 content 欄位與推理模型的 reasoning 欄位
                                 const delta = data.choices?.[0]?.delta;
                                 const content = delta?.content || delta?.reasoning || delta?.reasoning_content;
                                 if (content) {
@@ -1668,48 +1667,6 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
       return createErrorResponse('不支持的模型', 400);
     }
     
-    // GLM模型在非流式模式下返回最終答案，流式模式下返回思考過程
-    // 所以GLM模型不使用stream模式
-    const isGLM = body.model.includes('glm');
-    
-    if (isGLM) {
-      // GLM模型：使用非流式模式
-      const aiResponse = await callCloudflareAI(
-        env.CF_ACCOUNT_ID,
-        env.CF_API_TOKEN,
-        body.model,
-        { messages: body.messages }
-      );
-      
-      if (!aiResponse.ok) {
-        const errorData = await aiResponse.text();
-        console.error('AI API Error:', errorData);
-        return createErrorResponse('AI 服務調用失敗: ' + errorData, 500);
-      }
-      
-      const result = await aiResponse.json() as { result?: { choices?: Array<{ message?: { content?: string } }> } };
-      const response = result.result?.choices?.[0]?.message?.content || '';
-      
-      // 模擬SSE流返回
-      const { readable, writable } = new TransformStream();
-      const writer = writable.getWriter();
-      const encoder = new TextEncoder();
-      
-      writer.write(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: response } }] })}\n\n`));
-      writer.write(encoder.encode('data: [DONE]\n\n'));
-      writer.close();
-      
-      return new Response(readable, {
-        headers: {
-          ...CORS_HEADERS,
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-        },
-      });
-    }
-    
-    // 其他模型：使用流式模式
     const aiResponse = await callCloudflareAI(
       env.CF_ACCOUNT_ID,
       env.CF_API_TOKEN,
