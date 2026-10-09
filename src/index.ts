@@ -753,7 +753,7 @@ function getFrontendHTML(): string {
             </aside>
             
             <!-- 右側主內容區 -->
-            <main class="flex-1 flex flex-col relative" style="overflow: visible;">
+            <main class="flex-1 flex flex-col relative min-h-0" style="overflow: visible;">
                 <!-- 歡迎頁面 -->
                 <div id="welcomeScreen" class="flex-1 flex items-center justify-center">
                     <div class="text-center p-8">
@@ -768,14 +768,14 @@ function getFrontendHTML(): string {
                 </div>
                 
                 <!-- 對話模式 -->
-                <div id="chatMode" class="hidden flex-1 flex flex-col">
+                <div id="chatMode" class="hidden flex-1 flex flex-col min-h-0">
                     <!-- 聊天記錄 -->
-                    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-6">
+                    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-6 min-h-0">
                         <!-- 訊息會動態新增到這裡 -->
                     </div>
                     
                     <!-- 輸入區域 -->
-                    <div class="input-area p-4">
+                    <div class="input-area p-4 flex-shrink-0">
                         <div class="max-w-4xl mx-auto">
                             <div class="relative flex items-end gap-3 bg-dark-700/50 rounded-2xl border border-accent-blue/20 p-3 focus-within:border-accent-blue/50 transition-colors">
                                 <textarea 
