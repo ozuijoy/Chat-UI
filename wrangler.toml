@@ -1,0 +1,21 @@
+name = "chatui"
+main = "src/index.ts"
+compatibility_date = "2024-01-26"
+
+# ============================================
+# Cloudflare Workers AI ChatUI 配置
+# ============================================
+# 部署前需要设置以下 Secrets:
+# wrangler secret put CF_ACCOUNT_ID
+# wrangler secret put CF_API_TOKEN
+# wrangler secret put AUTH_PASSWORD
+# wrangler secret put SESSION_SECRET
+#
+# 或者通过 Cloudflare Dashboard 设置
+
+# KV Namespace 用于聊天记录持久化
+# 部署前需先创建 KV namespace:
+# wrangler kv:namespace create "CHAT_MEMORY"
+[[kv_namespaces]]
+binding = "CHAT_MEMORY"
+id = ""

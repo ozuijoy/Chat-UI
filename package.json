@@ -1,0 +1,40 @@
+{
+  "name": "cf-chatui",
+  "version": "1.0.0",
+  "description": "基于 Cloudflare Workers AI 的多功能 AI 对话 Web 界面",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "cloudflare-workers",
+    "ai",
+    "chat",
+    "chatgpt",
+    "glm",
+    "flux",
+    "embedding",
+    "workers-ai"
+  ],
+  "author": "CF ChatUI Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stephenlzc/cf-chatui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stephenlzc/cf-chatui/issues"
+  },
+  "homepage": "https://github.com/stephenlzc/cf-chatui#readme",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240101.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

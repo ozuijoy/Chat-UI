@@ -1,0 +1,21 @@
+# ============================================
+# 本地开发环境变量示例
+# ============================================
+# 复制此文件为 .dev.vars 并填入实际值
+# .dev.vars 不会被提交到 Git (已添加到 .gitignore)
+
+# Cloudflare 账户 ID
+# 获取方式: https://dash.cloudflare.com → 右侧边栏
+CF_ACCOUNT_ID=your_cloudflare_account_id_here
+
+# Cloudflare API Token
+# 获取方式: https://dash.cloudflare.com/profile/api-tokens
+# 权限要求: Account > Cloudflare AI > Edit
+CF_API_TOKEN=your_cloudflare_api_token_here
+
+# 登录密码 (用户访问 ChatUI 所需的密码)
+AUTH_PASSWORD=your_secure_password_here
+
+# JWT 会话密钥 (用于签名验证，建议使用随机字符串)
+# 生成命令: openssl rand -base64 32
+SESSION_SECRET=your_random_secret_key_here

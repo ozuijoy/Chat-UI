@@ -1,0 +1,34 @@
+name = "cf-chatui"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# ============================================
+# 示例配置文件
+# ============================================
+# 复制此文件为 wrangler.toml 并根据实际情况填写
+# 或者直接使用环境变量/secret命令
+
+[vars]
+# 登录密码 (建议修改为自己的强密码)
+AUTH_PASSWORD = "Admin12345%"
+
+# JWT会话密钥 (建议使用随机生成的长字符串)
+SESSION_SECRET = "cf-chatui-secret-key-2024"
+
+# ============================================
+# 敏感信息配置方法 (选择其一)
+# ============================================
+
+# 方法1: 使用 wrangler secret 命令 (推荐)
+# wrangler secret put CF_ACCOUNT_ID
+# wrangler secret put CF_API_TOKEN
+# wrangler secret put AUTH_PASSWORD
+# wrangler secret put SESSION_SECRET
+
+# 方法2: 创建 .dev.vars 文件用于本地开发
+cat > .dev.vars << EOF
+CF_ACCOUNT_ID=your_cloudflare_account_id
+CF_API_TOKEN=your_cloudflare_api_token
+AUTH_PASSWORD=your_secure_password
+SESSION_SECRET=your_random_secret_key
+EOF

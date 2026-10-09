@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Wrangler
+.dev.vars
+.wrangler/
+# Note: wrangler.toml is now tracked in git (no sensitive data)
+# .wrangler.toml.example is kept for reference
+
+# Build output
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+*.test.js
+*.spec.js
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
