@@ -1648,7 +1648,7 @@ async function handleGetModels(request: Request, env: Env): Promise<Response> {
   return createJSONResponse(SUPPORTED_MODELS);
 }
 
-async function handleChat(request: Request, env: Env): Promise<Response> {
+async function handleChat(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const user = await authenticateRequest(request, env);
   if (!user) {
     return createErrorResponse('未授權', 401);
@@ -1708,20 +1708,29 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
         writer.close();
       }
       
-      // 儲存對話記錄到 KV（如果記憶模式啟用）
+    };
+    
+    // 驅動 AI 流寫入，完成後用 ctx.waitUntil 保持 isolate 存活並寫入 KV
+    const runStream = async () => {
+      await processStream();
+      // stream 完成後寫入 KV
       try {
         const sessionId = await getSessionIdFromRequest(request, env);
         const memConfig = await loadMemoryConfig(sessionId, env);
         if (memConfig && body.messages) {
           await saveKVHistory(sessionId, JSON.stringify(body.messages), env);
+          console.log('KV 歷史已儲存:', sessionId);
+        } else {
+          console.log('KV 寫入跳過: memConfig=', memConfig, 'hasMessages=', !!body.messages);
         }
       } catch (e) {
         console.error('Save history to KV error:', e);
       }
     };
-    
-    processStream();
-    
+
+    // ctx.waitUntil：isolate 存活直到 AI 流寫完 + KV 寫入完成
+    ctx.waitUntil(runStream());
+
     return new Response(readable, {
       headers: {
         ...CORS_HEADERS,
@@ -1895,7 +1904,7 @@ async function handleMemoryConfigSet(request: Request, env: Env): Promise<Respon
 // ============================================
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const pathname = url.pathname;
     const method = request.method;
@@ -1929,7 +1938,7 @@ export default {
       }
       
       if (pathname === '/api/chat' && method === 'POST') {
-        return handleChat(request, env);
+        return handleChat(request, env, ctx);
       }
       
       if (pathname === '/api/generate-image' && method === 'POST') {
