@@ -49,8 +49,8 @@ interface JwtPayload {
 const SUPPORTED_MODELS = {
   chat: [
     { id: '@cf/meta/llama-3.1-8b-instruct-fp8-fast', name: 'Llama 3.1 8B Instruct FP8', description: '默認對話模型，快速高效' },
-    { id: '@cf/meta/llama-4-scout-17b', name: 'Llama 4 Scout 17B', description: '備選對話模型，更強推理能力' },
-    { id: '@cf/mistral/mistral-small-3.1-24b', name: 'Mistral Small 3.1 24B', description: '程式碼模式專用模型' },
+    { id: '@cf/meta/llama-4-scout-17b-16e-instruct', name: 'Llama 4 Scout 17B Instruct', description: '備選對話模型，更強推理能力' },
+    { id: '@cf/mistralai/mistral-small-3.1-24b-instruct', name: 'Mistral Small 3.1 24B Instruct', description: '程式碼模式專用模型' },
   ],
   image: [
     { id: '@cf/black-forest-labs/flux-2-dev', name: 'FLUX.2 Dev', description: '高質量圖像生成' },
@@ -671,7 +671,7 @@ function getFrontendHTML(): string {
                         </div>
                         
                         <!-- GPT-OSS-120b -->
-                        <div class="model-card p-4 rounded-xl cursor-pointer" data-model="@cf/meta/llama-4-scout-17b" data-type="chat">
+                        <div class="model-card p-4 rounded-xl cursor-pointer" data-model="@cf/meta/llama-4-scout-17b-16e-instruct" data-type="chat">
                             <div class="flex items-start gap-3">
                                 <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-green to-accent-cyan flex items-center justify-center flex-shrink-0">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -680,7 +680,7 @@ function getFrontendHTML(): string {
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="font-semibold text-sm text-white truncate">Llama-4-Scout-17B</span>
+                                        <span class="font-semibold text-sm text-white truncate">Llama-4-Scout-17B-Instruct</span>
                                         <span class="px-2 py-0.5 text-xs rounded-full bg-accent-green/20 text-accent-green border border-accent-green/30">對話</span>
                                     </div>
                                     <p class="text-xs text-gray-500 leading-relaxed">Meta Llama 4 Scout，170 億參數，推理能力強</p>
@@ -688,8 +688,8 @@ function getFrontendHTML(): string {
                             </div>
                         </div>
                         
-                        <!-- Mistral Small 3.1 24B - 程式碼模式 -->
-                        <div class="model-card p-4 rounded-xl cursor-pointer" data-model="@cf/mistral/mistral-small-3.1-24b" data-type="chat">
+                        <!-- Mistral Small 3.1 24B Instruct - 程式碼模式 -->
+                        <div class="model-card p-4 rounded-xl cursor-pointer" data-model="@cf/mistralai/mistral-small-3.1-24b-instruct" data-type="chat">
                             <div class="flex items-start gap-3">
                                 <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center flex-shrink-0">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -698,7 +698,7 @@ function getFrontendHTML(): string {
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="font-semibold text-sm text-white truncate">Mistral-Small-3.1-24B</span>
+                                        <span class="font-semibold text-sm text-white truncate">Mistral-Small-3.1-24B-Instruct</span>
                                         <span class="px-2 py-0.5 text-xs rounded-full bg-accent-pink/20 text-accent-pink border border-accent-pink/30">程式碼</span>
                                     </div>
                                     <p class="text-xs text-gray-500 leading-relaxed">Mistral Small 3.1，240 億參數，程式碼模式專用</p>
@@ -981,8 +981,8 @@ function getFrontendHTML(): string {
         function formatModelName(model) {
             const names = {
                 '@cf/meta/llama-3.1-8b-instruct-fp8-fast': 'Llama-3.1-8B-Instruct',
-                '@cf/meta/llama-4-scout-17b': 'Llama-4-Scout-17B',
-                '@cf/mistral/mistral-small-3.1-24b': 'Mistral-Small-3.1-24B',
+                '@cf/meta/llama-4-scout-17b-16e-instruct': 'Llama-4-Scout-17B-Instruct',
+                '@cf/mistralai/mistral-small-3.1-24b-instruct': 'Mistral-Small-3.1-24B-Instruct',
                 '@cf/black-forest-labs/flux-2-dev': 'FLUX-2-Dev',
                 '@cf/pfnet/plamo-embedding-1b': 'Plamo-Embedding'
             };

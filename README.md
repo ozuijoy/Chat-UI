@@ -15,7 +15,7 @@ CF ChatUI 是一個基於 **Cloudflare Workers AI** 的多功能 AI 對話 Web �
 ## ✨ 功能特性
 
 ### 🤖 AI 模型支持
-- 💬 **多模型對話** - Llama 3.1 8B Instruct (預設)、Llama 4 Scout 17B (備選)、Mistral Small 3.1 24B (程式碼模式)
+- 💬 **多模型對話** - Llama 3.1 8B Instruct (預設)、Llama 4 Scout 17B Instruct (備選)、Mistral Small 3.1 24B Instruct (程式碼模式)
 - 🎨 **AI 圖像生成** - FLUX.2 Dev 高質量圖像創作
 - 📊 **文本嵌入** - Plamo Embedding 向量化處理
 - 🧠 **記憶模式** - 聊天記錄持久化到 Cloudflare KV，可載入歷史對話
@@ -186,8 +186,8 @@ wrangler deploy
 | 類型 | 模型 | 描述 |
 |------|------|------|
 | 對話 | `@cf/meta/llama-3.1-8b-instruct-fp8-fast` | Meta Llama 3.1，預設對話模型 |
-| 對話 | `@cf/meta/llama-4-scout-17b` | Meta Llama 4 Scout，備選模型 |
-| 程式碼 | `@cf/mistral/mistral-small-3.1-24b` | Mistral Small 3.1，程式碼模式 |
+| 對話 | `@cf/meta/llama-4-scout-17b-16e-instruct` | Meta Llama 4 Scout，備選模型 |
+| 程式碼 | `@cf/mistralai/mistral-small-3.1-24b-instruct` | Mistral Small 3.1，程式碼模式 |
 | 圖像 | `@cf/black-forest-labs/flux-2-dev` | FLUX 高質量圖像生成 |
 | 嵌入 | `@cf/pfnet/plamo-embedding-1b` | 文本嵌入向量模型 |
 
@@ -247,7 +247,7 @@ Cloudflare Workers AI 採用 **Neuron（運算單元）計費制**，免費與�
 | 模型 | 輸入價格 | 輸出價格 |
 |------|---------|---------|
 | `@cf/meta/llama-3.1-8b-instruct-fp8-fast`（預設對話） | $0.045 / 1M tokens | $0.384 / 1M tokens |
-| `@cf/meta/llama-4-scout-17b-16e-instruct`（備選對話） | $0.270 / 1M tokens | $0.850 / 1M tokens |
+| `@cf/meta/llama-4-scout-17b-16e-instruct-16e-instruct`（備選對話） | $0.270 / 1M tokens | $0.850 / 1M tokens |
 | `@cf/mistralai/mistral-small-3.1-24b-instruct`（程式碼模式） | $0.351 / 1M tokens | $0.555 / 1M tokens |
 | `@cf/black-forest-labs/flux-2-dev`（圖像生成） | $0.00021 / 輸入 512×512 tile × step | $0.00041 / 輸出 512×512 tile × step |
 | `@cf/pfnet/plamo-embedding-1b`（文本嵌入） | $0.019 / 1M tokens | — |

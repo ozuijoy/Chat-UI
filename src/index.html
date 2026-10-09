@@ -448,7 +448,7 @@
                         </div>
                         
                         <!-- GPT-OSS-120b -->
-                        <div class="model-card p-4 rounded-xl cursor-pointer" data-model="@cf/meta/llama-4-scout-17b" data-type="chat">
+                        <div class="model-card p-4 rounded-xl cursor-pointer" data-model="@cf/meta/llama-4-scout-17b-16e-instruct" data-type="chat">
                             <div class="flex items-start gap-3">
                                 <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-green to-accent-cyan flex items-center justify-center flex-shrink-0">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -457,7 +457,7 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="font-semibold text-sm text-white truncate">Llama-4-Scout-17B</span>
+                                        <span class="font-semibold text-sm text-white truncate">Llama-4-Scout-17B-Instruct</span>
                                         <span class="px-2 py-0.5 text-xs rounded-full bg-accent-green/20 text-accent-green border border-accent-green/30">對話</span>
                                     </div>
                                     <p class="text-xs text-gray-500 leading-relaxed">Meta Llama 4 Scout，170 億參數，推理能力強</p>
@@ -465,8 +465,8 @@
                             </div>
                         </div>
                         
-                        <!-- Mistral Small 3.1 24B - 程式碼模式 -->
-                        <div class="model-card p-4 rounded-xl cursor-pointer" data-model="@cf/mistral/mistral-small-3.1-24b" data-type="chat">
+                        <!-- Mistral Small 3.1 24B Instruct - 程式碼模式 -->
+                        <div class="model-card p-4 rounded-xl cursor-pointer" data-model="@cf/mistralai/mistral-small-3.1-24b-instruct" data-type="chat">
                             <div class="flex items-start gap-3">
                                 <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-pink to-accent-purple flex items-center justify-center flex-shrink-0">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -475,7 +475,7 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="font-semibold text-sm text-white truncate">Mistral-Small-3.1-24B</span>
+                                        <span class="font-semibold text-sm text-white truncate">Mistral-Small-3.1-24B-Instruct</span>
                                         <span class="px-2 py-0.5 text-xs rounded-full bg-accent-pink/20 text-accent-pink border border-accent-pink/30">程式碼</span>
                                     </div>
                                     <p class="text-xs text-gray-500 leading-relaxed">Mistral Small 3.1，240 億參數，程式碼模式專用</p>
@@ -758,8 +758,8 @@
         function formatModelName(model) {
             const names = {
                 '@cf/meta/llama-3.1-8b-instruct-fp8-fast': 'Llama-3.1-8B-Instruct',
-                '@cf/meta/llama-4-scout-17b': 'Llama-4-Scout-17B',
-                '@cf/mistral/mistral-small-3.1-24b': 'Mistral-Small-3.1-24B',
+                '@cf/meta/llama-4-scout-17b-16e-instruct': 'Llama-4-Scout-17B-Instruct',
+                '@cf/mistralai/mistral-small-3.1-24b-instruct': 'Mistral-Small-3.1-24B-Instruct',
                 '@cf/black-forest-labs/flux-2-dev': 'FLUX-2-Dev',
                 '@cf/pfnet/plamo-embedding-1b': 'Plamo-Embedding'
             };
@@ -1000,4 +1000,4 @@
         // ============ 對話功能 ============
         function createMessageElement(role, content = '', isStreaming = false) {
             const div = document.createElement('div');
-            div.className = `message flex gap-4 ${role === 'user' ? 'flex-row-reverse' : ''}\
+            div.className = \`message flex gap-4 \${role === 'user' ? 'flex-row-reverse' : ''}\
