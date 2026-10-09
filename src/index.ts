@@ -12,7 +12,8 @@ export interface Env {
   CF_API_TOKEN: string;
   AUTH_PASSWORD: string;
   SESSION_SECRET: string;
-  CHAT_MEMORY: KVNamespace;
+  // KV 綁定建議在 Cloudflare Dashboard 中配置，變數名稱為 CHAT_MEMORY
+  CHAT_MEMORY?: KVNamespace;
 }
 
 interface LoginRequest {
@@ -1555,7 +1556,9 @@ async function getSessionIdFromRequest(request: Request, env: Env): Promise<stri
   return 'anon-' + Array.from(h.slice(0, 6)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// KV 未綁定時優雅降級（回傳空值/跳過操作），不影響主功能
 async function loadKVHistory(sessionId: string, env: Env): Promise<string> {
+  if (!env.CHAT_MEMORY) return '[]';
   try {
     return await env.CHAT_MEMORY.get(MEMORY_PREFIX + 'history:' + sessionId) || '[]';
   } catch (e) {
@@ -1565,6 +1568,7 @@ async function loadKVHistory(sessionId: string, env: Env): Promise<string> {
 }
 
 async function saveKVHistory(sessionId: string, messagesJson: string, env: Env): Promise<void> {
+  if (!env.CHAT_MEMORY) return;
   try {
     const raw = await env.CHAT_MEMORY.get(MEMORY_PREFIX + 'history:' + sessionId);
     const arr: Array<{ ts: number; data: string }> = raw ? JSON.parse(raw) : [];
@@ -1577,6 +1581,7 @@ async function saveKVHistory(sessionId: string, messagesJson: string, env: Env):
 }
 
 async function clearKVHistory(sessionId: string, env: Env): Promise<void> {
+  if (!env.CHAT_MEMORY) return;
   try {
     await env.CHAT_MEMORY.delete(MEMORY_PREFIX + 'history:' + sessionId);
   } catch (e) {
@@ -1585,6 +1590,7 @@ async function clearKVHistory(sessionId: string, env: Env): Promise<void> {
 }
 
 async function loadMemoryConfig(sessionId: string, env: Env): Promise<boolean> {
+  if (!env.CHAT_MEMORY) return false; // 未綁定 KV 時記憶模式預設關閉
   try {
     const v = await env.CHAT_MEMORY.get(MEMORY_PREFIX + 'config:' + sessionId);
     return v !== 'false';
@@ -1592,7 +1598,12 @@ async function loadMemoryConfig(sessionId: string, env: Env): Promise<boolean> {
 }
 
 async function saveMemoryConfig(sessionId: string, enabled: boolean, env: Env): Promise<void> {
-  await env.CHAT_MEMORY.put(MEMORY_PREFIX + 'config:' + sessionId, enabled ? 'true' : 'false');
+  if (!env.CHAT_MEMORY) return;
+  try {
+    await env.CHAT_MEMORY.put(MEMORY_PREFIX + 'config:' + sessionId, enabled ? 'true' : 'false');
+  } catch (e) {
+    console.error('KV 記憶配置儲存失敗:', e);
+  }
 }
 
 // ============================================

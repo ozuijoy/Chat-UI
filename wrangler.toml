@@ -13,9 +13,9 @@ compatibility_date = "2024-01-26"
 #
 # 或者通过 Cloudflare Dashboard 设置
 
-# KV Namespace 用于聊天记录持久化
-# 部署前需先创建 KV namespace:
-# wrangler kv:namespace create "CHAT_MEMORY"
-[[kv_namespaces]]
-binding = "CHAT_MEMORY"
-id = ""
+# KV Namespace 用於聊天記錄持久化（記憶模式）
+# 出於安全考慮，此處不寫入 namespace id。
+# 請在 Cloudflare Dashboard 中綁定：
+#   Workers & Pages → chatui → Settings → Bindings → Add KV namespace binding
+#   Variable name: CHAT_MEMORY
+#   KV namespace: 選擇你已建立的（或先建立一個新的，例如 chat-memory）

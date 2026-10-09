@@ -15,9 +15,10 @@ CF ChatUI 是一個基於 **Cloudflare Workers AI** 的多功能 AI 對話 Web �
 ## ✨ 功能特性
 
 ### 🤖 AI 模型支持
-- 💬 **多模型對話** - GLM-4.7-Flash、GPT-OSS-120B 等
+- 💬 **多模型對話** - Llama 3.1 8B Instruct (預設)、Llama 4 Scout 17B (備選)、Mistral Small 3.1 24B (程式碼模式)
 - 🎨 **AI 圖像生成** - FLUX.2 Dev 高質量圖像創作
 - 📊 **文本嵌入** - Plamo Embedding 向量化處理
+- 🧠 **記憶模式** - 聊天記錄持久化到 Cloudflare KV，可載入歷史對話
 
 ### 🛠️ 平臺特性
 - 🔐 **安全認證** - JWT 身份驗證，保護您的 AI 服務
@@ -118,7 +119,16 @@ wrangler secret put AUTH_PASSWORD
 wrangler secret put SESSION_SECRET
 # 輸入隨機生成的密鑰 (可使用: openssl rand -base64 32)
 
-# 4. 部署
+# 4. 在 Cloudflare Dashboard 綁定 KV (記憶模式)
+# 為避免敏感資訊寫入代碼庫，KV namespace id 不出現在 wrangler.toml 中。
+# 請在面板操作：
+#   a) Workers & Pages → KV namespace → 建立一個新 namespace（例如: chat-memory）
+#   b) Workers & Pages → chatui → Settings → Bindings → 新增 KV namespace 綁定
+#      - Variable name: CHAT_MEMORY
+#      - KV namespace:  選擇上面建立的 chat-memory
+#   c) 完成後再執行部署（面板綁定，wrangler deploy 不會移除）
+
+# 5. 部署
 wrangler deploy
 ```
 
@@ -173,8 +183,9 @@ wrangler deploy
 
 | 類型 | 模型 | 描述 |
 |------|------|------|
-| 對話 | `@cf/zai-org/glm-4.7-flash` | 智譜AI快速對話模型 |
-| 對話 | `@cf/openai/gpt-oss-120b` | OpenAI 開源大語言模型 |
+| 對話 | `@cf/meta/llama-3.1-8b-instruct-fp8-fast` | Meta Llama 3.1，預設對話模型 |
+| 對話 | `@cf/meta/llama-4-scout-17b` | Meta Llama 4 Scout，備選模型 |
+| 程式碼 | `@cf/mistral/mistral-small-3.1-24b` | Mistral Small 3.1，程式碼模式 |
 | 圖像 | `@cf/black-forest-labs/flux-2-dev` | FLUX 高質量圖像生成 |
 | 嵌入 | `@cf/pfnet/plamo-embedding-1b` | 文本嵌入向量模型 |
 

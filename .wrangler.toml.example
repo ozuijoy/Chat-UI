@@ -5,30 +5,44 @@ compatibility_date = "2024-01-01"
 # ============================================
 # 示例配置文件
 # ============================================
-# 复制此文件为 wrangler.toml 并根据实际情况填写
-# 或者直接使用环境变量/secret命令
+# 複製此檔案為 wrangler.toml 並根據實際情況填寫
+# 或者直接使用環境變數/secret 命令
 
 [vars]
-# 登录密码 (建议修改为自己的强密码)
+# 登入密碼（建議修改為自己的強密碼）
 AUTH_PASSWORD = "Admin12345%"
 
-# JWT会话密钥 (建议使用随机生成的长字符串)
+# JWT 會話密鑰（建議使用隨機生成的長字串）
 SESSION_SECRET = "cf-chatui-secret-key-2024"
 
 # ============================================
-# 敏感信息配置方法 (选择其一)
+# 敏感資訊配置方法（選擇其一）
 # ============================================
 
-# 方法1: 使用 wrangler secret 命令 (推荐)
+# 方法1: 使用 wrangler secret 命令（推薦）
 # wrangler secret put CF_ACCOUNT_ID
 # wrangler secret put CF_API_TOKEN
 # wrangler secret put AUTH_PASSWORD
 # wrangler secret put SESSION_SECRET
 
-# 方法2: 创建 .dev.vars 文件用于本地开发
+# 方法2: 建立 .dev.vars 檔案用於本地開發
 cat > .dev.vars << EOF
 CF_ACCOUNT_ID=your_cloudflare_account_id
 CF_API_TOKEN=your_cloudflare_api_token
 AUTH_PASSWORD=your_secure_password
 SESSION_SECRET=your_random_secret_key
 EOF
+
+# ============================================
+# KV Namespace 綁定（記憶模式）
+# ============================================
+# 為避免將 namespace id 明文寫入代碼庫，正式部署請在
+# Cloudflare Dashboard 綁定：
+#   Workers & Pages → chatui → Settings → Bindings
+#   Variable name: CHAT_MEMORY
+#
+# 僅在本地開發測試記憶模式時，才在下面加上（不要提交）：
+# [[kv_namespaces]]
+# binding = "CHAT_MEMORY"
+# id = "你的本地測試 namespace id"
+# preview_id = "你的預覽 namespace id"
