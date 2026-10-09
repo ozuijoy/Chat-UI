@@ -41,7 +41,7 @@ EOF
 #   Workers & Pages → chatui → Settings → Bindings
 #   Variable name: CHAT_MEMORY
 #
-# 僅在本地開發測試記憶模式時，才在下面加上（不要提交）：
+# 僅在本地開發測試記憶模式時，纔在下面加上（不要提交）：
 # [[kv_namespaces]]
 # binding = "CHAT_MEMORY"
 # id = "你的本地測試 namespace id"

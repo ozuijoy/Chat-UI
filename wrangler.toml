@@ -5,13 +5,13 @@ compatibility_date = "2024-01-26"
 # ============================================
 # Cloudflare Workers AI ChatUI 配置
 # ============================================
-# 部署前需要设置以下 Secrets:
+# 部署前需要設置以下 Secrets:
 # wrangler secret put CF_ACCOUNT_ID
 # wrangler secret put CF_API_TOKEN
 # wrangler secret put AUTH_PASSWORD
 # wrangler secret put SESSION_SECRET
 #
-# 或者通过 Cloudflare Dashboard 设置
+# 或者通過 Cloudflare Dashboard 設置
 
 # KV Namespace 用於聊天記錄持久化（記憶模式）
 # 出於安全考慮，此處不寫入 namespace id。

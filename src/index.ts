@@ -569,10 +569,10 @@ function getFrontendHTML(): string {
     <div class="gradient-bg"></div>
     <div class="noise-overlay"></div>
     
-    <!-- 登入页面 -->
+    <!-- 登入頁面 -->
     <div id="loginPage" class="fixed inset-0 flex items-center justify-center z-50">
         <div class="login-container relative w-full max-w-md p-8 mx-4">
-            <!-- 装饰性光晕 -->
+            <!-- 裝飾性光暈 -->
             <div class="absolute -top-20 -left-20 w-40 h-40 bg-accent-blue/20 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-20 -right-20 w-40 h-40 bg-accent-cyan/20 rounded-full blur-3xl"></div>
             
@@ -584,7 +584,7 @@ function getFrontendHTML(): string {
                         </svg>
                     </div>
                     <h1 class="text-3xl font-bold gradient-text mb-2">CF ChatUI</h1>
-                    <p class="text-dark-400 text-sm">Cloudflare Workers AI 智能對話平台</p>
+                    <p class="text-dark-400 text-sm">Cloudflare Workers AI 智能對話平臺</p>
                 </div>
                 
                 <form id="loginForm" class="space-y-6">
@@ -624,7 +624,7 @@ function getFrontendHTML(): string {
     
     <!-- 主界面 -->
     <div id="mainPage" class="hidden h-screen flex flex-col">
-        <!-- 导航栏 -->
+        <!-- 導航欄 -->
         <nav class="navbar h-16 flex items-center justify-between px-6 flex-shrink-0">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-blue to-accent-cyan flex items-center justify-center shadow-lg">
@@ -644,9 +644,9 @@ function getFrontendHTML(): string {
             </button>
         </nav>
         
-        <!-- 主体区域 -->
+        <!-- 主體區域 -->
         <div class="flex flex-1 overflow-hidden" style="height: calc(100vh - 73px);">
-            <!-- 左侧边栏 - 模型选择 -->
+            <!-- 左側邊欄 - 模型選擇 -->
             <aside class="sidebar w-80 flex-shrink-0 flex flex-col overflow-y-auto">
                 <div class="p-4">
                     <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">選擇模型</h2>
@@ -663,7 +663,7 @@ function getFrontendHTML(): string {
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="font-semibold text-sm text-white truncate">Llama-3.1-8B</span>
-                                        <span class="px-2 py-0.5 text-xs rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/30">对话</span>
+                                        <span class="px-2 py-0.5 text-xs rounded-full bg-accent-blue/20 text-accent-blue border border-accent-blue/30">對話</span>
                                     </div>
                                     <p class="text-xs text-gray-500 leading-relaxed">Meta Llama 3.1 快速對話模型，FP8 加速，適合日常對話</p>
                                 </div>
@@ -681,7 +681,7 @@ function getFrontendHTML(): string {
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="font-semibold text-sm text-white truncate">Llama-4-Scout-17B</span>
-                                        <span class="px-2 py-0.5 text-xs rounded-full bg-accent-green/20 text-accent-green border border-accent-green/30">对话</span>
+                                        <span class="px-2 py-0.5 text-xs rounded-full bg-accent-green/20 text-accent-green border border-accent-green/30">對話</span>
                                     </div>
                                     <p class="text-xs text-gray-500 leading-relaxed">Meta Llama 4 Scout，170 億參數，推理能力強</p>
                                 </div>
@@ -752,9 +752,9 @@ function getFrontendHTML(): string {
                 </div>
             </aside>
             
-            <!-- 右侧主内容区 -->
+            <!-- 右側主內容區 -->
             <main class="flex-1 flex flex-col relative" style="overflow: visible;">
-                <!-- 欢迎页面 -->
+                <!-- 歡迎頁面 -->
                 <div id="welcomeScreen" class="flex-1 flex items-center justify-center">
                     <div class="text-center p-8">
                         <div class="floating inline-flex items-center justify-center w-24 h-24 mb-6 rounded-2xl bg-gradient-to-br from-accent-blue via-accent-cyan to-accent-purple shadow-2xl">
@@ -769,12 +769,12 @@ function getFrontendHTML(): string {
                 
                 <!-- 對話模式 -->
                 <div id="chatMode" class="hidden flex-1 flex flex-col">
-                    <!-- 聊天记录 -->
+                    <!-- 聊天記錄 -->
                     <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-6">
                         <!-- 訊息會動態新增到這裡 -->
                     </div>
                     
-                    <!-- 输入区域 -->
+                    <!-- 輸入區域 -->
                     <div class="input-area p-4">
                         <div class="max-w-4xl mx-auto">
                             <div class="relative flex items-end gap-3 bg-dark-700/50 rounded-2xl border border-accent-blue/20 p-3 focus-within:border-accent-blue/50 transition-colors">
@@ -811,7 +811,7 @@ function getFrontendHTML(): string {
                 <div id="imageMode" class="hidden flex-1 flex flex-col overflow-y-auto">
                     <div class="flex-1 p-6">
                         <div class="max-w-3xl mx-auto space-y-6">
-                            <!-- 提示詞输入 -->
+                            <!-- 提示詞輸入 -->
                             <div class="bg-dark-700/50 rounded-2xl border border-accent-blue/20 p-6">
                                 <label class="block text-sm font-medium text-gray-400 mb-3">提示詞</label>
                                 <textarea 
@@ -831,7 +831,7 @@ function getFrontendHTML(): string {
                                         <input type="range" id="stepsInput" min="1" max="50" value="25" class="w-full">
                                     </div>
                                     <div>
-                                        <label class="block text-xs text-gray-500 mb-2">宽度: <span id="widthValue" class="text-accent-cyan">1024</span>px</label>
+                                        <label class="block text-xs text-gray-500 mb-2">寬度: <span id="widthValue" class="text-accent-cyan">1024</span>px</label>
                                         <select id="widthInput" class="input-field w-full px-3 py-2 rounded-lg text-sm text-white">
                                             <option value="512">512px</option>
                                             <option value="768">768px</option>
@@ -849,7 +849,7 @@ function getFrontendHTML(): string {
                                 </div>
                             </div>
                             
-                            <!-- 生成按钮 -->
+                            <!-- 生成按鈕 -->
                             <button id="generateImageBtn" class="btn-primary w-full py-4 rounded-xl font-semibold text-white flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -858,7 +858,7 @@ function getFrontendHTML(): string {
                                 <div id="generateImageLoading" class="hidden loading-ring w-5 h-5 border-2"></div>
                             </button>
                             
-                            <!-- 图片预览 -->
+                            <!-- 圖片預覽 -->
                             <div id="imagePreview" class="image-preview rounded-2xl p-8 min-h-80 flex items-center justify-center">
                                 <div class="text-center">
                                     <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-dark-600 flex items-center justify-center">
@@ -877,7 +877,7 @@ function getFrontendHTML(): string {
                 <div id="embeddingMode" class="hidden flex-1 flex flex-col overflow-y-auto">
                     <div class="flex-1 p-6">
                         <div class="max-w-3xl mx-auto space-y-6">
-                            <!-- 文本输入 -->
+                            <!-- 文本輸入 -->
                             <div class="bg-dark-700/50 rounded-2xl border border-accent-blue/20 p-6">
                                 <label class="block text-sm font-medium text-gray-400 mb-3">輸入文字</label>
                                 <textarea 
@@ -888,7 +888,7 @@ function getFrontendHTML(): string {
                                 ></textarea>
                             </div>
                             
-                            <!-- 生成按钮 -->
+                            <!-- 生成按鈕 -->
                             <button id="generateEmbeddingBtn" class="btn-primary w-full py-4 rounded-xl font-semibold text-white flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
@@ -897,7 +897,7 @@ function getFrontendHTML(): string {
                                 <div id="generateEmbeddingLoading" class="hidden loading-ring w-5 h-5 border-2"></div>
                             </button>
                             
-                            <!-- 结果展示 -->
+                            <!-- 結果展示 -->
                             <div id="embeddingResult" class="hidden">
                                 <div class="bg-dark-700/50 rounded-2xl border border-accent-blue/20 p-6">
                                     <div class="flex items-center justify-between mb-4">
@@ -913,7 +913,7 @@ function getFrontendHTML(): string {
                     </div>
                 </div>
                 
-                <!-- 全局错误提示 -->
+                <!-- 全局錯誤提示 -->
                 <div id="globalError" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-50">
                     <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-6 py-3 rounded-xl flex items-center gap-3">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1013,7 +1013,7 @@ function getFrontendHTML(): string {
                     passwordInput.value = '';
                 } else {
                     const data = await response.json();
-                    showError(loginError, data.error || '密码错误');
+                    showError(loginError, data.error || '密碼錯誤');
                 }
             } catch (err) {
                 showError(loginError, '網路錯誤，請稍後重試');
@@ -1034,7 +1034,7 @@ function getFrontendHTML(): string {
                 chatMessages.innerHTML = '';
                 resetAllModes();
             } catch (err) {
-                showGlobalError('登出失败');
+                showGlobalError('登出失敗');
             }
         });
         
@@ -1300,7 +1300,7 @@ function getFrontendHTML(): string {
                 if (!response.ok) {
                     const errorData = await response.text();
                     console.error('Chat API error:', errorData);
-                    throw new Error('请求失败: ' + response.status);
+                    throw new Error('請求失敗: ' + response.status);
                 }
                 
                 const reader = response.body.getReader();
@@ -1406,7 +1406,7 @@ function getFrontendHTML(): string {
         generateImageBtn.addEventListener('click', async () => {
             const prompt = imagePrompt.value.trim();
             if (!prompt) {
-                showGlobalError('请输入提示詞');
+                showGlobalError('請輸入提示詞');
                 return;
             }
             
@@ -1467,7 +1467,7 @@ function getFrontendHTML(): string {
         generateEmbeddingBtn.addEventListener('click', async () => {
             const text = embeddingInput.value.trim();
             if (!text) {
-                showGlobalError('请輸入文字');
+                showGlobalError('請輸入文字');
                 return;
             }
             
@@ -1500,7 +1500,7 @@ function getFrontendHTML(): string {
                     const displayData = data.embedding.slice(0, 100);
                     const remaining = data.embedding.length - 100;
                     embeddingData.textContent = JSON.stringify(displayData, null, 2) + 
-                        (remaining > 0 ? \`\\n\\n... 還有 \${remaining} 个維度\` : '');
+                        (remaining > 0 ? \`\\n\\n... 還有 \${remaining} 個維度\` : '');
                 }
             } catch (err) {
                 showGlobalError('嵌入生成失敗: ' + err.message);
@@ -1615,12 +1615,12 @@ async function handleLogin(request: Request, env: Env): Promise<Response> {
     const body: LoginRequest = await request.json();
     
     if (!body.password) {
-      return createErrorResponse('请提供密码', 400);
+      return createErrorResponse('請提供密碼', 400);
     }
     
     // 驗證密碼
     if (body.password !== env.AUTH_PASSWORD) {
-      return createErrorResponse('密码错误', 401);
+      return createErrorResponse('密碼錯誤', 401);
     }
     
     // 生成 JWT token (24小時有效)
@@ -1631,7 +1631,7 @@ async function handleLogin(request: Request, env: Env): Promise<Response> {
     
     return createJSONResponse({ token, session_id: await getSessionIdFromRequest(request, env), message: '登入成功' });
   } catch {
-    return createErrorResponse('请求格式错误', 400);
+    return createErrorResponse('請求格式錯誤', 400);
   }
 }
 
@@ -1643,7 +1643,7 @@ async function handleLogout(request: Request, env: Env): Promise<Response> {
 async function handleGetModels(request: Request, env: Env): Promise<Response> {
   const user = await authenticateRequest(request, env);
   if (!user) {
-    return createErrorResponse('未授权', 401);
+    return createErrorResponse('未授權', 401);
   }
   
   return createJSONResponse(SUPPORTED_MODELS);
@@ -1652,14 +1652,14 @@ async function handleGetModels(request: Request, env: Env): Promise<Response> {
 async function handleChat(request: Request, env: Env): Promise<Response> {
   const user = await authenticateRequest(request, env);
   if (!user) {
-    return createErrorResponse('未授权', 401);
+    return createErrorResponse('未授權', 401);
   }
   
   try {
     const body: ChatRequest = await request.json();
     
     if (!body.model || !body.messages || !Array.isArray(body.messages)) {
-      return createErrorResponse('请提供模型和消息列表', 400);
+      return createErrorResponse('請提供模型和消息列表', 400);
     }
     
     // 驗證模型是否支持
@@ -1684,7 +1684,7 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
       if (!aiResponse.ok) {
         const errorData = await aiResponse.text();
         console.error('AI API Error:', errorData);
-        return createErrorResponse('AI 服务调用失败: ' + errorData, 500);
+        return createErrorResponse('AI 服務調用失敗: ' + errorData, 500);
       }
       
       const result = await aiResponse.json() as { result?: { choices?: Array<{ message?: { content?: string } }> } };
@@ -1720,7 +1720,7 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
     if (!aiResponse.ok) {
       const errorData = await aiResponse.text();
       console.error('AI API Error:', errorData);
-      return createErrorResponse('AI 服务调用失败: ' + errorData, 500);
+      return createErrorResponse('AI 服務調用失敗: ' + errorData, 500);
     }
     
     // 創建 SSE 流
@@ -1775,21 +1775,21 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
     });
   } catch (err) {
     console.error('Chat error:', err);
-    return createErrorResponse('处理请求时出错', 500);
+    return createErrorResponse('處理請求時出錯', 500);
   }
 }
 
 async function handleGenerateImage(request: Request, env: Env): Promise<Response> {
   const user = await authenticateRequest(request, env);
   if (!user) {
-    return createErrorResponse('未授权', 401);
+    return createErrorResponse('未授權', 401);
   }
   
   try {
     const body: GenerateImageRequest = await request.json();
     
     if (!body.prompt) {
-      return createErrorResponse('请提供提示詞', 400);
+      return createErrorResponse('請提供提示詞', 400);
     }
     
     const model = '@cf/black-forest-labs/flux-2-dev';
@@ -1822,7 +1822,7 @@ async function handleGenerateImage(request: Request, env: Env): Promise<Response
     const base64Image = result.result?.image;
     
     if (!base64Image) {
-      return createErrorResponse('图片生成返回格式错误', 500);
+      return createErrorResponse('圖片生成返回格式錯誤', 500);
     }
     
     return createJSONResponse({
@@ -1831,21 +1831,21 @@ async function handleGenerateImage(request: Request, env: Env): Promise<Response
     });
   } catch (err) {
     console.error('Image generation error:', err);
-    return createErrorResponse('生成图片时出错', 500);
+    return createErrorResponse('生成圖片時出錯', 500);
   }
 }
 
 async function handleEmbeddings(request: Request, env: Env): Promise<Response> {
   const user = await authenticateRequest(request, env);
   if (!user) {
-    return createErrorResponse('未授权', 401);
+    return createErrorResponse('未授權', 401);
   }
   
   try {
     const body: EmbeddingsRequest = await request.json();
     
     if (!body.text) {
-      return createErrorResponse('请提供文本', 400);
+      return createErrorResponse('請提供文本', 400);
     }
     
     const model = '@cf/pfnet/plamo-embedding-1b';
@@ -1873,7 +1873,7 @@ async function handleEmbeddings(request: Request, env: Env): Promise<Response> {
     });
   } catch (err) {
     console.error('Embeddings error:', err);
-    return createErrorResponse('生成嵌入时出错', 500);
+    return createErrorResponse('生成嵌入時出錯', 500);
   }
 }
 
