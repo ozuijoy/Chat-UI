@@ -235,15 +235,24 @@ cf-chatui/
 
 ## 💰 Workers AI 定價
 
-Cloudflare Workers AI 提供**免費額度**，對於個人使用通常足夠：
+Cloudflare Workers AI 採用 **Neuron（運算單元）計費制**，免費與付費 Workers 方案皆有**每日 10,000 Neurons 免費額度**（每日 00:00 UTC 重置）：
 
-| 模型類型 | 免費額度 | 超出後價格 |
-|---------|---------|-----------|
-| 文本生成 (Llama/Mistral) | 每天 10,000 次請求 | $0.001-0.003 / 1K tokens |
-| 圖像生成 (FLUX) | 每天 100 張 | $0.02-0.05 / 張 |
-| 文本嵌入 | 每天 100,000 次 | $0.0001 / 1K tokens |
+| 方案 | 免費額度 | 超出後價格 |
+|------|---------|-----------|
+| Workers Free | 10,000 Neurons / 天 | 不計費，需升級才能繼續超量使用 |
+| Workers Paid | 10,000 Neurons / 天 | **$0.011 / 1,000 Neurons** |
 
-> 📌 **提示**: 免費額度每日重置，足夠個人日常使用。查看 [官方定價](https://developers.cloudflare.com/workers-ai/pricing/) 獲取最新信息。
+### 本專案使用模型的單價（官方 token 對照價）
+
+| 模型 | 輸入價格 | 輸出價格 |
+|------|---------|---------|
+| `@cf/meta/llama-3.1-8b-instruct-fp8-fast`（預設對話） | $0.045 / 1M tokens | $0.384 / 1M tokens |
+| `@cf/meta/llama-4-scout-17b-16e-instruct`（備選對話） | $0.270 / 1M tokens | $0.850 / 1M tokens |
+| `@cf/mistralai/mistral-small-3.1-24b-instruct`（程式碼模式） | $0.351 / 1M tokens | $0.555 / 1M tokens |
+| `@cf/black-forest-labs/flux-2-dev`（圖像生成） | $0.00021 / 輸入 512×512 tile × step | $0.00041 / 輸出 512×512 tile × step |
+| `@cf/pfnet/plamo-embedding-1b`（文本嵌入） | $0.019 / 1M tokens | — |
+
+> 📌 **提示**: 以預設模型為例，輸出每百萬 token 約消耗 34,868 Neurons —— 每日 10,000 Neurons 免費額度約可支撐數百輪短對話，個人使用通常足夠。圖像生成以「像素塊 × 迭代步數」計價（例如 1024×1024、25 steps 約 $0.04 / 張）。最新價格與各模型單價請查看 [官方定價](https://developers.cloudflare.com/workers-ai/platform/pricing/)。
 
 ## 🔒 安全建議
 
