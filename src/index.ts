@@ -1688,40 +1688,31 @@ async function handleChat(request: Request, env: Env, ctx: ExecutionContext): Pr
       return createErrorResponse('AI 服務調用失敗: ' + errorData, 500);
     }
     
-    // 創建 SSE 流
-    const { readable, writable } = new TransformStream();
-    const writer = writable.getWriter();
+    // ============================================================
+    // 串流轉發：泵送必須由「回應體」驅動，不可吊在 ctx.waitUntil() 上。
+    //
+    // 官方限制（Workers「Limits」與「Context (ctx)」文件）：
+    //   • waitUntil() 在回覆送出／客戶端斷線後最多只延長 30 秒，且同一請求內
+    //     所有 waitUntil 共用這個額度；未結算的 Promise 會被直接取消。
+    //   • 相對地「仍在串流的回應體」沒有時間上限——只要客戶端還連線，
+    //     平台就會自己驅動串流，無需 waitUntil 續命。
+    //   • CPU 額度另算：Free 方案每請求僅 10 ms，Paid 預設 30 s。
+    //
+    // 舊寫法以 JS 迴圈逐 chunk `await writer.write()` 泵送，並把整條泵送
+    // 塞進 waitUntil。回覆放長到 2048 token 後，逐 chunk 的 await 往返
+    // （一個 token 一個 SSE 事件，上千次）既吃 CPU 又拖長 waitUntil，
+    // 串流於是「到一半被平台掐斷」；因為代碼是被取消而非正常結算，
+    // 寫在 finally 裡的 data: [DONE] 永遠送不出去。
+    //
+    // 新寫法：aiResponse.body.pipeThrough(tap) 由平台做串接，JS 只在
+    // transform 回調中原封不動轉發（無 await、無 writer 往返），
+    // 終止符改由 flush 在串流自然結算時補發。
+    // ============================================================
     const encoder = new TextEncoder();
-    
-    // 處理流式響應
-    const processStream = async () => {
-      const reader = aiResponse.body?.getReader();
-      if (!reader) {
-        writer.close();
-        return;
-      }
-      
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          // 直接轉發原始數據
-          await writer.write(value);
-        }
-      } catch (err) {
-        console.error('Stream error:', err);
-      } finally {
-        await writer.write(encoder.encode('data: [DONE]\n\n'));
-        writer.close();
-      }
-      
-    };
-    
-    // 驅動 AI 流寫入，完成後用 ctx.waitUntil 保持 isolate 存活並寫入 KV
-    const runStream = async () => {
-      await processStream();
-      // stream 完成後寫入 KV
+    const sseDone = encoder.encode('data: [DONE]\n\n');
+
+    // 記憶模式：記錄本次請求的 messages，於串流結算後寫入
+    const saveHistoryAfterReply = async () => {
       try {
         const sessionId = await getSessionIdFromRequest(request, env);
         const memConfig = await loadMemoryConfig(sessionId, env);
@@ -1736,10 +1727,31 @@ async function handleChat(request: Request, env: Env, ctx: ExecutionContext): Pr
       }
     };
 
-    // ctx.waitUntil：isolate 存活直到 AI 流寫完 + KV 寫入完成
-    ctx.waitUntil(runStream());
+    const tap = new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        // 直接轉發上游位元組，不做任何解析或字串化
+        controller.enqueue(chunk);
+      },
+      flush(controller) {
+        // 上游正常結束：補發 SSE 終止符，前端據此判定「回覆已完整」
+        // （上游若已自帶 [DONE]，多發一個也無害，前端會忽略）
+        controller.enqueue(sseDone);
+        // 此時只剩一條 KV put（數十毫秒），交給 waitUntil 既不會阻塞
+        // 客戶端收流，也遠不會觸及 30 秒額度
+        ctx.waitUntil(saveHistoryAfterReply());
+      },
+    });
 
-    return new Response(readable, {
+    const responseBody = aiResponse.body
+      ? aiResponse.body.pipeThrough(tap)
+      : new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(sseDone);
+            controller.close();
+          },
+        });
+
+    return new Response(responseBody, {
       headers: {
         ...CORS_HEADERS,
         'Content-Type': 'text/event-stream',
