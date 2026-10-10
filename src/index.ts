@@ -1310,39 +1310,46 @@ function getFrontendHTML(): string {
                 // 移除loading動畫
                 aiMsg.bubble.innerHTML = '';
                 
+                // SSE 行緩衝：避免 TCP chunk 邊界切斷 data: 行導致 JSON 解析失敗丟失 token
+                let sseBuffer = '';
+                const handleSSELine = (line) => {
+                    if (!line.startsWith('data: ')) return;
+                    const dataStr = line.slice(6).trim();
+                    if (dataStr === '[DONE]') return;
+                    try {
+                        const data = JSON.parse(dataStr);
+                        // 相容標準 content 欄位與推理模型的 reasoning 欄位
+                        const delta = data.choices?.[0]?.delta;
+                        const content = delta?.content || delta?.reasoning || delta?.reasoning_content;
+                        if (content) {
+                            fullResponse += content;
+                            aiMsg.bubble.innerHTML = marked.parse(fullResponse);
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                            
+                            // 代碼高亮
+                            aiMsg.bubble.querySelectorAll('pre code').forEach(block => {
+                                hljs.highlightElement(block);
+                            });
+                        }
+                    } catch (e) {
+                        // 忽略解析錯誤
+                    }
+                };
+                
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
                     
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split('\\n');
-                    
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const dataStr = line.slice(6).trim();
-                            if (dataStr === '[DONE]') continue;
-                            
-                            try {
-                                const data = JSON.parse(dataStr);
-                                // 相容標準 content 欄位與推理模型的 reasoning 欄位
-                                const delta = data.choices?.[0]?.delta;
-                                const content = delta?.content || delta?.reasoning || delta?.reasoning_content;
-                                if (content) {
-                                    fullResponse += content;
-                                    aiMsg.bubble.innerHTML = marked.parse(fullResponse);
-                                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                                    
-                                    // 代碼高亮
-                                    aiMsg.bubble.querySelectorAll('pre code').forEach(block => {
-                                        hljs.highlightElement(block);
-                                    });
-                                }
-                            } catch (e) {
-                                // 忽略解析錯誤
-                            }
-                        }
-                    }
+                    sseBuffer += decoder.decode(value, { stream: true });
+                    const parts = sseBuffer.split('\\n');
+                    // 最後一段可能是不完整的行，留到下一個 chunk 再處理
+                    sseBuffer = parts.pop();
+                    for (const line of parts) handleSSELine(line);
                 }
+                
+                // 流結束後沖刷殘留緩衝區（含多位元組字元收尾與最後一行）
+                sseBuffer += decoder.decode();
+                for (const line of sseBuffer.split('\\n')) handleSSELine(line);
                 
                 // 保存歷史
                 chatHistory.push({ role: 'user', content: message });
@@ -1667,11 +1674,12 @@ async function handleChat(request: Request, env: Env, ctx: ExecutionContext): Pr
       return createErrorResponse('不支持的模型', 400);
     }
     
+    // max_tokens 需顯式設定：Workers AI REST 預設僅 512，長回覆會被截斷
     const aiResponse = await callCloudflareAI(
       env.CF_ACCOUNT_ID,
       env.CF_API_TOKEN,
       body.model,
-      { messages: body.messages, stream: true }
+      { messages: body.messages, stream: true, max_tokens: 2048 }
     );
     
     if (!aiResponse.ok) {

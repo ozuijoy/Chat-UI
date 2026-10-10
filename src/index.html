@@ -530,7 +530,7 @@
             </aside>
             
             <!-- 右側主內容區 -->
-            <main class="flex-1 flex flex-col relative" style="overflow: visible;">
+            <main class="flex-1 flex flex-col relative min-h-0" style="overflow: visible;">
                 <!-- 歡迎頁面 -->
                 <div id="welcomeScreen" class="flex-1 flex items-center justify-center">
                     <div class="text-center p-8">
@@ -545,14 +545,14 @@
                 </div>
                 
                 <!-- 對話模式 -->
-                <div id="chatMode" class="hidden flex-1 flex flex-col">
+                <div id="chatMode" class="hidden flex-1 flex flex-col min-h-0">
                     <!-- 聊天記錄 -->
-                    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-6">
+                    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-6 min-h-0">
                         <!-- 訊息會動態新增到這裡 -->
                     </div>
                     
                     <!-- 輸入區域 -->
-                    <div class="input-area p-4">
+                    <div class="input-area p-4 flex-shrink-0">
                         <div class="max-w-4xl mx-auto">
                             <div class="relative flex items-end gap-3 bg-dark-700/50 rounded-2xl border border-accent-blue/20 p-3 focus-within:border-accent-blue/50 transition-colors">
                                 <textarea 
@@ -1000,4 +1000,312 @@
         // ============ 對話功能 ============
         function createMessageElement(role, content = '', isStreaming = false) {
             const div = document.createElement('div');
-            div.className = \`message flex gap-4 \${role === 'user' ? 'flex-row-reverse' : ''}\
+            div.className = `message flex gap-4 ${role === 'user' ? 'flex-row-reverse' : ''}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = `w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                role === 'user' 
+                    ? 'bg-gradient-to-br from-accent-blue to-accent-cyan' 
+                    : 'bg-gradient-to-br from-accent-purple to-accent-pink'
+            }`;
+            avatar.innerHTML = role === 'user' 
+                ? '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>'
+                : '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>';
+            
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-3xl p-4 rounded-2xl ${role === 'user' ? 'message-user rounded-tr-sm' : 'message-ai rounded-tl-sm'}`;
+            
+            if (isStreaming) {
+                bubble.innerHTML = `
+                    <div class="flex gap-1">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+            } else {
+                bubble.innerHTML = content ? marked.parse(content) : '';
+            }
+            
+            div.appendChild(avatar);
+            div.appendChild(bubble);
+            
+            return { div, bubble };
+        }
+        
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message || isStreaming) return;
+            
+            // 添加用戶消息
+            const userMsg = createMessageElement('user', message);
+            chatMessages.appendChild(userMsg.div);
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            
+            // 添加AI消息佔位
+            const aiMsg = createMessageElement('ai', '', true);
+            chatMessages.appendChild(aiMsg.div);
+            
+            // 滾動到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            isStreaming = true;
+            sendBtn.disabled = true;
+            
+            try {
+                // 構建消息歷史
+                const messages = [
+                    { role: 'system', content: 'You are a helpful assistant. Please respond directly to the user without showing your reasoning process.' },
+                    ...chatHistory,
+                    { role: 'user', content: message }
+                ];
+                
+                const token = localStorage.getItem('cf_chatui_token');
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({
+                        model: currentModel,
+                        messages: messages
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.text();
+                    console.error('Chat API error:', errorData);
+                    throw new Error('請求失敗: ' + response.status);
+                }
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullResponse = '';
+                
+                // 移除loading動畫
+                aiMsg.bubble.innerHTML = '';
+                
+                // SSE 行緩衝：避免 TCP chunk 邊界切斷 data: 行導致 JSON 解析失敗丟失 token
+                let sseBuffer = '';
+                const handleSSELine = (line) => {
+                    if (!line.startsWith('data: ')) return;
+                    const dataStr = line.slice(6).trim();
+                    if (dataStr === '[DONE]') return;
+                    try {
+                        const data = JSON.parse(dataStr);
+                        // 相容標準 content 欄位與推理模型的 reasoning 欄位
+                        const delta = data.choices?.[0]?.delta;
+                        const content = delta?.content || delta?.reasoning || delta?.reasoning_content;
+                        if (content) {
+                            fullResponse += content;
+                            aiMsg.bubble.innerHTML = marked.parse(fullResponse);
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                            
+                            // 代碼高亮
+                            aiMsg.bubble.querySelectorAll('pre code').forEach(block => {
+                                hljs.highlightElement(block);
+                            });
+                        }
+                    } catch (e) {
+                        // 忽略解析錯誤
+                    }
+                };
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    sseBuffer += decoder.decode(value, { stream: true });
+                    const parts = sseBuffer.split('\n');
+                    // 最後一段可能是不完整的行，留到下一個 chunk 再處理
+                    sseBuffer = parts.pop();
+                    for (const line of parts) handleSSELine(line);
+                }
+                
+                // 流結束後沖刷殘留緩衝區（含多位元組字元收尾與最後一行）
+                sseBuffer += decoder.decode();
+                for (const line of sseBuffer.split('\n')) handleSSELine(line);
+                
+                // 保存歷史
+                chatHistory.push({ role: 'user', content: message });
+                chatHistory.push({ role: 'assistant', content: fullResponse });
+                
+                // 限制歷史長度
+                if (chatHistory.length > 20) {
+                    chatHistory = chatHistory.slice(-20);
+                }
+                
+            } catch (err) {
+                aiMsg.bubble.innerHTML = `<span class="text-red-400">錯誤: ${err.message}</span>`;
+                showGlobalError('對話請求失敗，請稍後重試');
+            } finally {
+                isStreaming = false;
+                sendBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+        
+        sendBtn.addEventListener('click', sendMessage);
+        
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        chatInput.addEventListener('input', () => {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 128) + 'px';
+        });
+        
+        // ============ 圖片生成 ============
+        const stepsInput = document.getElementById('stepsInput');
+        const stepsValue = document.getElementById('stepsValue');
+        const widthInput = document.getElementById('widthInput');
+        const widthValue = document.getElementById('widthValue');
+        const heightInput = document.getElementById('heightInput');
+        const heightValue = document.getElementById('heightValue');
+        const imagePrompt = document.getElementById('imagePrompt');
+        const generateImageBtn = document.getElementById('generateImageBtn');
+        const generateImageText = document.getElementById('generateImageText');
+        const generateImageLoading = document.getElementById('generateImageLoading');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        stepsInput.addEventListener('input', () => {
+            stepsValue.textContent = stepsInput.value;
+        });
+        
+        widthInput.addEventListener('change', () => {
+            widthValue.textContent = widthInput.value;
+        });
+        
+        heightInput.addEventListener('change', () => {
+            heightValue.textContent = heightInput.value;
+        });
+        
+        generateImageBtn.addEventListener('click', async () => {
+            const prompt = imagePrompt.value.trim();
+            if (!prompt) {
+                showGlobalError('請輸入提示詞');
+                return;
+            }
+            
+            setLoading(generateImageBtn, true, generateImageText, generateImageLoading);
+            
+            try {
+                const token = localStorage.getItem('cf_chatui_token');
+                const response = await fetch('/api/generate-image', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        steps: parseInt(stepsInput.value) || 25,
+                        width: parseInt(widthInput.value) || 1024,
+                        height: parseInt(heightInput.value) || 1024
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('產生失敗');
+                }
+                
+                const data = await response.json();
+                
+                if (data.image) {
+                    imagePreview.classList.add('has-image');
+                    imagePreview.innerHTML = `
+                        <img src="${data.image}" alt="Generated Image" class="max-w-full max-h-96 rounded-xl shadow-2xl">
+                        <div class="absolute bottom-4 right-4">
+                            <a href="${data.image}" download="generated-image.png" class="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                下載
+                            </a>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                showGlobalError('圖片生成失敗: ' + err.message);
+            } finally {
+                setLoading(generateImageBtn, false, generateImageText, generateImageLoading);
+            }
+        });
+        
+        // ============ 文本嵌入 ============
+        const embeddingInput = document.getElementById('embeddingInput');
+        const generateEmbeddingBtn = document.getElementById('generateEmbeddingBtn');
+        const generateEmbeddingText = document.getElementById('generateEmbeddingText');
+        const generateEmbeddingLoading = document.getElementById('generateEmbeddingLoading');
+        const embeddingResult = document.getElementById('embeddingResult');
+        const embeddingDimensions = document.getElementById('embeddingDimensions');
+        const embeddingData = document.getElementById('embeddingData');
+        
+        generateEmbeddingBtn.addEventListener('click', async () => {
+            const text = embeddingInput.value.trim();
+            if (!text) {
+                showGlobalError('請輸入文字');
+                return;
+            }
+            
+            setLoading(generateEmbeddingBtn, true, generateEmbeddingText, generateEmbeddingLoading);
+            
+            try {
+                const token = localStorage.getItem('cf_chatui_token');
+                const response = await fetch('/api/embeddings', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({
+                        text: text
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('產生失敗');
+                }
+                
+                const data = await response.json();
+                
+                if (data.embedding) {
+                    embeddingResult.classList.remove('hidden');
+                    embeddingDimensions.textContent = `${data.embedding.length} 維度`;
+                    
+                    // 顯示部分數據
+                    const displayData = data.embedding.slice(0, 100);
+                    const remaining = data.embedding.length - 100;
+                    embeddingData.textContent = JSON.stringify(displayData, null, 2) + 
+                        (remaining > 0 ? `\n\n... 還有 ${remaining} 個維度` : '');
+                }
+            } catch (err) {
+                showGlobalError('嵌入生成失敗: ' + err.message);
+            } finally {
+                setLoading(generateEmbeddingBtn, false, generateEmbeddingText, generateEmbeddingLoading);
+            }
+        });
+        
+        // ============ 初始化 ============
+        document.addEventListener('DOMContentLoaded', () => {
+            // 配置 marked
+            marked.setOptions({
+                highlight: function(code, lang) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        return hljs.highlight(code, { language: lang }).value;
+                    }
+                    return hljs.highlightAuto(code).value;
+                },
+                breaks: true,
+                gfm: true
+            });
+        });
+    </script>
+</body>
+</html>
